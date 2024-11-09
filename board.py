@@ -12,6 +12,7 @@ class Board:
         self.message = ""
         self.message_start_time = None
         self.message_duration = 0
+        self.game_over = False
 
     def display_message(self, message, duration=2):
         self.message = message
@@ -19,36 +20,38 @@ class Board:
         self.message_start_time = time.time()
 
     def draw(self, win, current_color):
-        # Draw the header
-        pygame.draw.rect(win, GRAY, (0, 0, WIDTH, HEADER_HEIGHT))
+
+        pygame.draw.rect(win, GRAY, (0, 0, WIDTH, HEADER_HEIGHT))   # HEADER 
         
-        # Draw turn text on the left side
-        turn_text = "Player 1's Turn" if current_color == 'B' else "Player 2's Turn"
+        if self.game_over:
+            turn_text = "Game Over"
+        else:
+            turn_text = "Player 1's Turn" if current_color == 'B' else "Player 2's Turn"
+        
         text_surface = FONT.render(turn_text, True, FONT_COLOR)
         win.blit(text_surface, (10, HEADER_HEIGHT // 2 - text_surface.get_height() // 2))
 
-        # Draw player color indicator next to the turn text
-        piece_color = BLACK if current_color == 'B' else WHITE
-        pygame.draw.circle(win, piece_color, (165, HEADER_HEIGHT // 2), 15)
+        if not self.game_over:
+            piece_color = BLACK if current_color == 'B' else WHITE
+            pygame.draw.circle(win, piece_color, (165, HEADER_HEIGHT // 2), 15)
 
-        # Count pieces on the board and draw on the right side of header
-        black_count, white_count = count_pieces(self.grid)
-        pygame.draw.circle(win, BLACK, (WIDTH - SIDEBAR_WIDTH - 100, HEADER_HEIGHT // 2), 15)
+    
+        black_count, white_count = count_pieces(self.grid)    # Count the number of black and white pieces
+        pygame.draw.circle(win, BLACK, (WIDTH - SIDEBAR_WIDTH - 120, HEADER_HEIGHT // 2), 15)
         black_count_text = FONT.render(str(black_count), True, FONT_COLOR)
-        win.blit(black_count_text, (WIDTH - SIDEBAR_WIDTH - 80, HEADER_HEIGHT // 2 - black_count_text.get_height() // 2))
+        win.blit(black_count_text, (WIDTH - SIDEBAR_WIDTH - 100, HEADER_HEIGHT // 2 - black_count_text.get_height() // 2))
 
         pygame.draw.circle(win, WHITE, (WIDTH - SIDEBAR_WIDTH - 50, HEADER_HEIGHT // 2), 15)
         white_count_text = FONT.render(str(white_count), True, FONT_COLOR)
         win.blit(white_count_text, (WIDTH - SIDEBAR_WIDTH - 30, HEADER_HEIGHT // 2 - white_count_text.get_height() // 2))
 
-        # Display message in the center of the header if within duration
         if self.message and (time.time() - self.message_start_time < self.message_duration):
             message_surface = FONT.render(self.message, True, FONT_COLOR)
             win.blit(message_surface, (WIDTH // 2 - message_surface.get_width() // 2, HEADER_HEIGHT // 2 - message_surface.get_height() // 2))
         else:
-            self.message = ""  # Clear message if time has expired
+            self.message = ""
 
-        # Draw the game board area
+
         win.fill(GREEN, (0, HEADER_HEIGHT, WIDTH - SIDEBAR_WIDTH, HEIGHT - HEADER_HEIGHT))
         for row in range(8):
             for col in range(8):
@@ -58,7 +61,7 @@ class Board:
                 elif self.grid[row][col] == 'W':
                     pygame.draw.circle(win, WHITE, (col * SQUARE_SIZE + SQUARE_SIZE // 2, row * SQUARE_SIZE + SQUARE_SIZE // 2 + HEADER_HEIGHT), SQUARE_SIZE // 2 - 5)
 
-        # Draw the sidebar
+
         pygame.draw.rect(win, (128, 0, 128), (WIDTH - SIDEBAR_WIDTH, HEADER_HEIGHT, SIDEBAR_WIDTH, HEIGHT - HEADER_HEIGHT))
 
     def is_valid_move(self, row, col, color):
@@ -82,13 +85,18 @@ class Board:
         return False
 
     def make_move(self, row, col, color):
-        if not self.is_valid_move(row, col, color):
+        if self.game_over or not self.is_valid_move(row, col, color):
             self.display_message("Invalid Move! Skipping Turn!", 2)
             return False
+
+
         self.grid[row][col] = color
         for dx, dy in self.directions:
             if self.check_direction(row, col, dx, dy, color):
                 self.flip_pieces(row, col, dx, dy, color)
+
+
+        self.check_winner()
         return True
 
     def flip_pieces(self, row, col, dx, dy, color):
@@ -107,24 +115,21 @@ class Board:
         return False
 
     def handle_click(self, pos, color):
-        print(f"Click position: {pos}")
-        if pos[0] >= WIDTH - SIDEBAR_WIDTH or pos[1] < HEADER_HEIGHT:
-            print("Click ignored: Sidebar or header area")
+        if pos[0] >= WIDTH - SIDEBAR_WIDTH or pos[1] < HEADER_HEIGHT or self.game_over:
             return False
 
         row, col = (pos[1] - HEADER_HEIGHT) // SQUARE_SIZE, pos[0] // SQUARE_SIZE
-
-
         if self.make_move(row, col, color):
-            self.check_winner()
             return True
         return False
 
     def check_winner(self):
-        black_count, white_count = count_pieces(self.grid)
-        if black_count > white_count:
-            self.display_message("Player 1 (Black) wins!", 5)
-        elif white_count > black_count:
-            self.display_message("Player 2 (White) wins!", 5)
-        else:
-            self.display_message("It's a tie!", 5)
+        if not self.has_valid_moves('B') and not self.has_valid_moves('W'):
+            black_count, white_count = count_pieces(self.grid)
+            if black_count > white_count:
+                self.display_message("Player 1 (Black) wins!", 5)
+            elif white_count > black_count:
+                self.display_message("Player 2 (White) wins!", 5)
+            else:
+                self.display_message("It's a tie!", 5)
+            self.game_over = True

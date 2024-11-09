@@ -15,10 +15,12 @@ def run_game(win):
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                if pos[0] < WIDTH - SIDEBAR_WIDTH and pos[1] > HEADER_HEIGHT:
-                    if board.handle_click(pos, current_color):
-                        current_color = 'W' if current_color == 'B' else 'B'
-        
+                if not board.game_over and pos[0] < WIDTH - SIDEBAR_WIDTH and pos[1] > HEADER_HEIGHT:
+                    board.handle_click(pos, current_color)
+                    current_color = 'W' if current_color == 'B' else 'B'
+
         board.draw(win, current_color)
         pygame.display.flip()
         clock.tick(30)
+
+
