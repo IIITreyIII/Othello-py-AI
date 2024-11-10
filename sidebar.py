@@ -1,5 +1,6 @@
 import pygame
 from settings import WIDTH, HEADER_HEIGHT, SIDEBAR_WIDTH, FONT, FONT_COLOR, BLACK, WHITE, HEIGHT, RED
+from score_manager import read_scores, write_scores
 
 class Sidebar:
     def __init__(self):
@@ -7,6 +8,7 @@ class Sidebar:
         self.use_alpha_beta = False  # Track alpha-beta toggle
         self.search_depth = 3
         self.depth_input_active = False  # Tracks if depth input mode is active
+        self.scores = read_scores()  # Read scores from file
 
         # Define button sizes and positions with enhanced spacing and alignment
         self.button_width = SIDEBAR_WIDTH - 40
@@ -64,16 +66,21 @@ class Sidebar:
             depth_display_text = FONT.render(str(self.search_depth), True, RED if self.depth_input_active else WHITE)
             win.blit(depth_display_text, (self.depth_text_input_rect.x + 10, self.depth_text_input_rect.y + 8))
 
-        # Draw scoreboard for P1 and P2 (Visual Only)
-        score_y_pos = self.return_button_rect.y - 80  # Position the score above the main menu button
+        # Draw scoreboard title
+        scoreboard_title_y_pos = self.return_button_rect.y - 160  # Adjusted position to move the title higher
+        scoreboard_title_text = FONT.render("Total Games Won", True, WHITE)
+        win.blit(scoreboard_title_text, (self.return_button_rect.x + 10, scoreboard_title_y_pos))
+
+        # Draw scoreboard for P1 and P2
+        score_y_pos = self.return_button_rect.y - 120  # Adjusted position to move the score higher
         pygame.draw.rect(win, (50, 50, 50), (self.return_button_rect.x, score_y_pos, self.button_width, 40))  # Scoreboard background
 
-        # Player 1 (Black) placeholder score
-        p1_label = FONT.render("P1: 12", True, WHITE)  # Visual-only score
+        # Player 1 (Black) score
+        p1_label = FONT.render(f"P1: {self.scores['P1']}", True, WHITE)
         win.blit(p1_label, (self.return_button_rect.x + 10, score_y_pos + 10))
 
-        # Player 2 (White) placeholder score
-        p2_label = FONT.render("P2: 8", True, WHITE)  # Visual-only score
+        # Player 2 (White) score
+        p2_label = FONT.render(f"P2: {self.scores['P2']}", True, WHITE)
         win.blit(p2_label, (self.return_button_rect.x + 100, score_y_pos + 10))
 
         # Draw new game button if the game is over
@@ -97,6 +104,19 @@ class Sidebar:
 
     def get_depth(self):
         return self.search_depth
+
+    def reset_scores(self):
+        """Reset scores to 0 and save to file."""
+        self.scores = {'P1': 0, 'P2': 0}
+        write_scores(self.scores)
+
+    def update_scores(self, winner):
+        """Update scores based on the winner and save to file."""
+        if winner == 'B':
+            self.scores['P1'] += 1
+        elif winner == 'W':
+            self.scores['P2'] += 1
+        write_scores(self.scores)
 
     def handle_click(self, pos):
         """Handle clicks in the sidebar for toggling debug, activating smart move, and alpha-beta pruning."""

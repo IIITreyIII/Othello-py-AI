@@ -157,8 +157,10 @@ class Board:
             black_count, white_count = count_pieces(self.grid)
             if black_count > white_count:
                 self.display_message("Player 1 (Black) wins!", 5)
+                self.sidebar.update_scores('B')
             elif white_count > black_count:
                 self.display_message("Player 2 (White) wins!", 5)
+                self.sidebar.update_scores('W')
             else:
                 self.display_message("It's a tie!", 5)
             self.game_over = True

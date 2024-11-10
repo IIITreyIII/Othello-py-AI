@@ -2,12 +2,15 @@ import pygame
 import sys
 from game_modes import twoPlayer, playerVsComputer
 from settings import WIDTH, HEIGHT, FONT, FONT_COLOR, BLACK, WHITE
+from score_manager import write_scores
 
 pygame.init()
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Othello Main Menu")
 
 def main_menu():
+    # Reset scores when returning to the main menu
+    write_scores({'P1': 0, 'P2': 0})
     while True:
         WIN.fill((200, 200, 200))
         title_text = FONT.render("Othello Game", True, FONT_COLOR)
