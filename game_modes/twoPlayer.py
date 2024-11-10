@@ -33,6 +33,8 @@ def run_game(win):
                     elif action == "toggle_alpha_beta":
                         # Sync AI's alpha-beta pruning setting with the sidebar toggle
                         ai.use_alpha_beta = board.sidebar.use_alpha_beta
+                    elif action == "return_to_menu":
+                        return  # Exit the game loop and return to the main menu
                 elif not board.game_over and pos[0] < WIDTH - SIDEBAR_WIDTH and pos[1] > HEADER_HEIGHT:
                     board.handle_click(pos, current_color)
                     current_color = 'W' if current_color == 'B' else 'B'

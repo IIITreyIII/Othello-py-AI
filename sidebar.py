@@ -21,6 +21,7 @@ class Sidebar:
         self.update_depth_button_rect = pygame.Rect(x_pos, self.smart_move_button_rect.bottom + self.spacing, self.button_width, self.button_height)
         self.alpha_beta_button_rect = pygame.Rect(x_pos, self.update_depth_button_rect.bottom + self.spacing, self.button_width, self.button_height)
         self.depth_text_input_rect = pygame.Rect(x_pos, self.alpha_beta_button_rect.bottom + self.spacing + 10, self.button_width, self.button_height)
+        self.return_button_rect = pygame.Rect(x_pos, HEIGHT - self.margin_top - self.button_height, self.button_width, self.button_height)
 
     def draw(self, win, black_count, white_count):
         """Draw the sidebar including debug, smart move, and depth controls."""
@@ -62,6 +63,11 @@ class Sidebar:
             depth_display_text = FONT.render(str(self.search_depth), True, RED if self.depth_input_active else WHITE)
             win.blit(depth_display_text, (self.depth_text_input_rect.x + 10, self.depth_text_input_rect.y + 8))
 
+        # Draw return to main menu button
+        pygame.draw.rect(win, (200, 200, 200), self.return_button_rect, border_radius=8)
+        return_text = FONT.render("Main Menu", True, BLACK)
+        win.blit(return_text, (self.return_button_rect.x + 15, self.return_button_rect.y + 8))
+
     def toggle_debug(self):
         """Toggle debug mode on or off."""
         self.debug_mode = not self.debug_mode
@@ -86,6 +92,8 @@ class Sidebar:
         elif self.debug_mode and self.alpha_beta_button_rect.collidepoint(pos):
             self.toggle_alpha_beta()
             return "toggle_alpha_beta"
+        elif self.return_button_rect.collidepoint(pos):
+            return "return_to_menu"
         elif self.depth_text_input_rect.collidepoint(pos):
             self.depth_input_active = True
             return None
