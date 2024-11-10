@@ -63,6 +63,18 @@ class Sidebar:
             depth_display_text = FONT.render(str(self.search_depth), True, RED if self.depth_input_active else WHITE)
             win.blit(depth_display_text, (self.depth_text_input_rect.x + 10, self.depth_text_input_rect.y + 8))
 
+        # Draw scoreboard for P1 and P2 (Visual Only)
+        score_y_pos = self.return_button_rect.y - 80  # Position the score above the main menu button
+        pygame.draw.rect(win, (50, 50, 50), (self.return_button_rect.x, score_y_pos, self.button_width, 40))  # Scoreboard background
+
+        # Player 1 (Black) placeholder score
+        p1_label = FONT.render("P1: 12", True, WHITE)  # Visual-only score
+        win.blit(p1_label, (self.return_button_rect.x + 10, score_y_pos + 10))
+
+        # Player 2 (White) placeholder score
+        p2_label = FONT.render("P2: 8", True, WHITE)  # Visual-only score
+        win.blit(p2_label, (self.return_button_rect.x + 100, score_y_pos + 10))
+
         # Draw return to main menu button
         pygame.draw.rect(win, (200, 200, 200), self.return_button_rect, border_radius=8)
         return_text = FONT.render("Main Menu", True, BLACK)
