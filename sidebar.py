@@ -23,8 +23,9 @@ class Sidebar:
         self.update_depth_button_rect = pygame.Rect(x_pos, self.smart_move_button_rect.bottom + self.spacing, self.button_width, self.button_height)
         self.alpha_beta_button_rect = pygame.Rect(x_pos, self.update_depth_button_rect.bottom + self.spacing, self.button_width, self.button_height)
         self.depth_text_input_rect = pygame.Rect(x_pos, self.alpha_beta_button_rect.bottom + self.spacing + 10, self.button_width, self.button_height)
-        self.new_game_button_rect = pygame.Rect(x_pos, HEIGHT - self.margin_top - self.button_height * 2 - self.spacing, self.button_width, self.button_height)
-        self.return_button_rect = pygame.Rect(x_pos, HEIGHT - self.margin_top - self.button_height, self.button_width, self.button_height)
+        self.new_game_button_rect = pygame.Rect(x_pos, HEIGHT - self.margin_top - self.button_height * 3 - self.spacing * 2, self.button_width, self.button_height)
+        self.return_button_rect = pygame.Rect(x_pos, HEIGHT - self.margin_top - self.button_height * 2 - self.spacing, self.button_width, self.button_height)
+        self.reset_scores_button_rect = pygame.Rect(x_pos, HEIGHT - self.margin_top - self.button_height, self.button_width, self.button_height)
 
     def draw(self, win, black_count, white_count, game_over):
         """Draw the sidebar including debug, smart move, and depth controls."""
@@ -67,12 +68,12 @@ class Sidebar:
             win.blit(depth_display_text, (self.depth_text_input_rect.x + 10, self.depth_text_input_rect.y + 8))
 
         # Draw scoreboard title
-        scoreboard_title_y_pos = self.return_button_rect.y - 160  # Adjusted position to move the title higher
+        scoreboard_title_y_pos = self.return_button_rect.y - 200  # Adjusted position to move the title higher
         scoreboard_title_text = FONT.render("Total Games Won", True, WHITE)
         win.blit(scoreboard_title_text, (self.return_button_rect.x + 10, scoreboard_title_y_pos))
 
         # Draw scoreboard for P1 and P2
-        score_y_pos = self.return_button_rect.y - 120  # Adjusted position to move the score higher
+        score_y_pos = self.return_button_rect.y - 160  # Adjusted position to move the score higher
         pygame.draw.rect(win, (50, 50, 50), (self.return_button_rect.x, score_y_pos, self.button_width, 40))  # Scoreboard background
 
         # Player 1 (Black) score
@@ -93,6 +94,11 @@ class Sidebar:
         pygame.draw.rect(win, (200, 200, 200), self.return_button_rect, border_radius=8)
         return_text = FONT.render("Main Menu", True, BLACK)
         win.blit(return_text, (self.return_button_rect.x + 15, self.return_button_rect.y + 8))
+
+        # Draw reset scores button
+        pygame.draw.rect(win, (200, 200, 200), self.reset_scores_button_rect, border_radius=8)
+        reset_scores_text = FONT.render("Reset Scores", True, BLACK)
+        win.blit(reset_scores_text, (self.reset_scores_button_rect.x + 15, self.reset_scores_button_rect.y + 8))
 
     def toggle_debug(self):
         """Toggle debug mode on or off."""
@@ -135,6 +141,9 @@ class Sidebar:
             return "return_to_menu"
         elif self.new_game_button_rect.collidepoint(pos):
             return "new_game"
+        elif self.reset_scores_button_rect.collidepoint(pos):
+            self.reset_scores()
+            return "reset_scores"
         elif self.depth_text_input_rect.collidepoint(pos):
             self.depth_input_active = True
             return None

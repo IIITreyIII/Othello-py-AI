@@ -3,14 +3,14 @@ import sys
 from game_modes import twoPlayer, playerVsComputer
 from settings import WIDTH, HEIGHT, FONT, FONT_COLOR, BLACK, WHITE
 from score_manager import write_scores
+from sidebar import Sidebar
 
 pygame.init()
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Othello Main Menu")
 
 def main_menu():
-    # Reset scores when returning to the main menu
-    write_scores({'P1': 0, 'P2': 0})
+    sidebar = Sidebar()
     while True:
         WIN.fill((200, 200, 200))
         title_text = FONT.render("Othello Game", True, FONT_COLOR)
@@ -41,6 +41,8 @@ def main_menu():
                 elif ai_button_rect.collidepoint(event.pos):
                     playerVsComputer.run_game(WIN)
                     break  # Exit the event loop and redraw the main menu
+                elif sidebar.reset_scores_button_rect.collidepoint(event.pos):
+                    sidebar.reset_scores()
 
 if __name__ == "__main__":
     main_menu()
