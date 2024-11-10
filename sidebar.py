@@ -21,9 +21,10 @@ class Sidebar:
         self.update_depth_button_rect = pygame.Rect(x_pos, self.smart_move_button_rect.bottom + self.spacing, self.button_width, self.button_height)
         self.alpha_beta_button_rect = pygame.Rect(x_pos, self.update_depth_button_rect.bottom + self.spacing, self.button_width, self.button_height)
         self.depth_text_input_rect = pygame.Rect(x_pos, self.alpha_beta_button_rect.bottom + self.spacing + 10, self.button_width, self.button_height)
+        self.new_game_button_rect = pygame.Rect(x_pos, HEIGHT - self.margin_top - self.button_height * 2 - self.spacing, self.button_width, self.button_height)
         self.return_button_rect = pygame.Rect(x_pos, HEIGHT - self.margin_top - self.button_height, self.button_width, self.button_height)
 
-    def draw(self, win, black_count, white_count):
+    def draw(self, win, black_count, white_count, game_over):
         """Draw the sidebar including debug, smart move, and depth controls."""
         pygame.draw.rect(win, (50, 50, 50), (WIDTH - SIDEBAR_WIDTH, HEADER_HEIGHT, SIDEBAR_WIDTH, HEIGHT - HEADER_HEIGHT))  # Dark gray background
 
@@ -75,6 +76,12 @@ class Sidebar:
         p2_label = FONT.render("P2: 8", True, WHITE)  # Visual-only score
         win.blit(p2_label, (self.return_button_rect.x + 100, score_y_pos + 10))
 
+        # Draw new game button if the game is over
+        if game_over:
+            pygame.draw.rect(win, (200, 200, 200), self.new_game_button_rect, border_radius=8)
+            new_game_text = FONT.render("New Game", True, BLACK)
+            win.blit(new_game_text, (self.new_game_button_rect.x + 15, self.new_game_button_rect.y + 8))
+
         # Draw return to main menu button
         pygame.draw.rect(win, (200, 200, 200), self.return_button_rect, border_radius=8)
         return_text = FONT.render("Main Menu", True, BLACK)
@@ -106,6 +113,8 @@ class Sidebar:
             return "toggle_alpha_beta"
         elif self.return_button_rect.collidepoint(pos):
             return "return_to_menu"
+        elif self.new_game_button_rect.collidepoint(pos):
+            return "new_game"
         elif self.depth_text_input_rect.collidepoint(pos):
             self.depth_input_active = True
             return None

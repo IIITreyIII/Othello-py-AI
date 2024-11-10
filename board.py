@@ -49,7 +49,7 @@ class Board:
             pygame.draw.circle(win, piece_color, (165, HEADER_HEIGHT // 2), 15)
 
         black_count, white_count = count_pieces(self.grid)
-        self.sidebar.draw(win, black_count, white_count)
+        self.sidebar.draw(win, black_count, white_count, self.game_over)
 
         # Draw board grid and pieces
         win.fill(GREEN, (0, HEADER_HEIGHT, WIDTH - SIDEBAR_WIDTH, HEIGHT - HEADER_HEIGHT))
@@ -69,6 +69,17 @@ class Board:
                     heuristic_surface = FONT.render(str(heuristic_value), True, FONT_COLOR)
                     win.blit(heuristic_surface, (col * SQUARE_SIZE + SQUARE_SIZE // 2 - heuristic_surface.get_width() // 2,
                                                  row * SQUARE_SIZE + HEADER_HEIGHT + SQUARE_SIZE // 2 - heuristic_surface.get_height() // 2))
+
+        # Draw new game button if the game is over
+        if self.game_over:
+            pygame.draw.rect(win, (200, 200, 200), self.sidebar.new_game_button_rect, border_radius=8)
+            new_game_text = FONT.render("New Game", True, BLACK)
+            win.blit(new_game_text, (self.sidebar.new_game_button_rect.x + 15, self.sidebar.new_game_button_rect.y + 8))
+
+        # Draw return to main menu button
+        pygame.draw.rect(win, (200, 200, 200), self.sidebar.return_button_rect, border_radius=8)
+        return_text = FONT.render("Main Menu", True, BLACK)
+        win.blit(return_text, (self.sidebar.return_button_rect.x + 15, self.sidebar.return_button_rect.y + 8))
 
     def update_heuristics(self, heuristics):
         """Update the board with heuristic values to display."""

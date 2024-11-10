@@ -36,6 +36,8 @@ def run_game(win):
                         ai.use_alpha_beta = board.sidebar.use_alpha_beta
                     elif action == "return_to_menu":
                         return  # Exit the game loop and return to the main menu
+                    elif action == "new_game":
+                        return run_game(win)  # Restart the game
                 elif not board.game_over and pos[0] < WIDTH - SIDEBAR_WIDTH and pos[1] > HEADER_HEIGHT:
                     # Check if the move was valid
                     move_successful = board.handle_click(pos, current_color)
