@@ -4,12 +4,14 @@ from settings import WIDTH, HEADER_HEIGHT, SIDEBAR_WIDTH, FONT, FONT_COLOR, BLAC
 class Sidebar:
     def __init__(self):
         self.debug_mode = False
+        self.use_alpha_beta = False  # Track alpha-beta toggle
         self.debug_button_rect = pygame.Rect(WIDTH - SIDEBAR_WIDTH + 20, HEADER_HEIGHT + 20, 100, 30)
         self.smart_move_button_rect = pygame.Rect(WIDTH - SIDEBAR_WIDTH + 20, HEADER_HEIGHT + 70, 100, 30)
         self.update_depth_button_rect = pygame.Rect(WIDTH - SIDEBAR_WIDTH + 20, HEADER_HEIGHT + 120, 100, 30)
+        self.alpha_beta_button_rect = pygame.Rect(WIDTH - SIDEBAR_WIDTH + 20, HEADER_HEIGHT + 160, 100, 30)
         self.search_depth = 3
         self.depth_input_active = False  # Tracks if depth input mode is active
-        self.depth_text_input_rect = pygame.Rect(WIDTH - SIDEBAR_WIDTH + 20, HEADER_HEIGHT + 180, 100, 30)
+        self.depth_text_input_rect = pygame.Rect(WIDTH - SIDEBAR_WIDTH + 20, HEADER_HEIGHT + 200, 100, 30)
 
     def draw(self, win, black_count, white_count):
         """Draw the sidebar including debug, smart move, and depth controls."""
@@ -29,7 +31,7 @@ class Sidebar:
         debug_text = FONT.render("Debug ON" if self.debug_mode else "Debug OFF", True, BLACK)
         win.blit(debug_text, (self.debug_button_rect.x + 5, self.debug_button_rect.y + 5))
 
-        # Draw smart move and depth controls if debug mode is on
+        # Draw smart move, alpha-beta toggle, and depth controls if debug mode is on
         if self.debug_mode:
             pygame.draw.rect(win, WHITE, self.smart_move_button_rect)
             smart_move_text = FONT.render("Smart Move", True, BLACK)
@@ -38,6 +40,11 @@ class Sidebar:
             pygame.draw.rect(win, WHITE, self.update_depth_button_rect)
             update_depth_text = FONT.render("Update Depth", True, BLACK)
             win.blit(update_depth_text, (self.update_depth_button_rect.x + 5, self.update_depth_button_rect.y + 5))
+
+            # Alpha-beta toggle button
+            pygame.draw.rect(win, WHITE, self.alpha_beta_button_rect)
+            alpha_beta_text = FONT.render("Alpha-Beta ON" if self.use_alpha_beta else "Alpha-Beta OFF", True, BLACK)
+            win.blit(alpha_beta_text, (self.alpha_beta_button_rect.x + 5, self.alpha_beta_button_rect.y + 5))
 
             # Display current depth and allow input if active
             depth_text = FONT.render(f"Depth: {self.search_depth}", True, FONT_COLOR)
@@ -55,11 +62,15 @@ class Sidebar:
         """Toggle debug mode on or off."""
         self.debug_mode = not self.debug_mode
 
+    def toggle_alpha_beta(self):
+        """Toggle alpha-beta pruning on or off."""
+        self.use_alpha_beta = not self.use_alpha_beta
+
     def get_depth(self):
         return self.search_depth
 
     def handle_click(self, pos):
-        """Handle clicks in the sidebar for toggling debug and activating smart move."""
+        """Handle clicks in the sidebar for toggling debug, activating smart move, and alpha-beta pruning."""
         if self.debug_button_rect.collidepoint(pos):
             self.toggle_debug()
             return "toggle_debug"
@@ -68,6 +79,9 @@ class Sidebar:
         elif self.debug_mode and self.update_depth_button_rect.collidepoint(pos):
             self.depth_input_active = True  # Activate depth input mode
             return "update_depth"
+        elif self.debug_mode and self.alpha_beta_button_rect.collidepoint(pos):
+            self.toggle_alpha_beta()
+            return "toggle_alpha_beta"
         elif self.depth_text_input_rect.collidepoint(pos):
             self.depth_input_active = True
             return None

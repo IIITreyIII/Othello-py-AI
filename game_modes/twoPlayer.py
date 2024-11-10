@@ -30,6 +30,9 @@ def run_game(win):
                         # Execute the best move for the current player and switch turns
                         if ai.make_best_move(board, current_color):
                             current_color = 'W' if current_color == 'B' else 'B'
+                    elif action == "toggle_alpha_beta":
+                        # Sync AI's alpha-beta pruning setting with the sidebar toggle
+                        ai.use_alpha_beta = board.sidebar.use_alpha_beta
                 elif not board.game_over and pos[0] < WIDTH - SIDEBAR_WIDTH and pos[1] > HEADER_HEIGHT:
                     board.handle_click(pos, current_color)
                     current_color = 'W' if current_color == 'B' else 'B'
