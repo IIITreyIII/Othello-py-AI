@@ -15,7 +15,7 @@ class Board:
         self.message_duration = 0
         self.game_over = False
         self.sidebar = Sidebar()
-        self.heuristic_display = {}  # Store heuristic values for display on the grid
+        self.heuristic_display = {}
 
     def display_message(self, message, duration=2):
         """Set a message to be displayed in the header for a specific duration."""
