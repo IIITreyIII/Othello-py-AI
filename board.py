@@ -15,6 +15,7 @@ class Board:
         self.message_duration = 0
         self.game_over = False
         self.sidebar = Sidebar()
+        self.heuristic_display = {}  # Store heuristic values for display on the grid
 
     def display_message(self, message, duration=2):
         """Set a message to be displayed in the header for a specific duration."""
@@ -55,10 +56,23 @@ class Board:
         for row in range(8):
             for col in range(8):
                 pygame.draw.rect(win, BLACK, (col * SQUARE_SIZE, row * SQUARE_SIZE + HEADER_HEIGHT, SQUARE_SIZE, SQUARE_SIZE), 1)
+                
+                # Draw pieces
                 if self.grid[row][col] == 'B':
                     pygame.draw.circle(win, BLACK, (col * SQUARE_SIZE + SQUARE_SIZE // 2, row * SQUARE_SIZE + SQUARE_SIZE // 2 + HEADER_HEIGHT), SQUARE_SIZE // 2 - 5)
                 elif self.grid[row][col] == 'W':
                     pygame.draw.circle(win, WHITE, (col * SQUARE_SIZE + SQUARE_SIZE // 2, row * SQUARE_SIZE + SQUARE_SIZE // 2 + HEADER_HEIGHT), SQUARE_SIZE // 2 - 5)
+                
+                # Draw heuristic values in empty cells if debug mode is on
+                if self.sidebar.debug_mode and (row, col) in self.heuristic_display:
+                    heuristic_value = self.heuristic_display[(row, col)]
+                    heuristic_surface = FONT.render(str(heuristic_value), True, FONT_COLOR)
+                    win.blit(heuristic_surface, (col * SQUARE_SIZE + SQUARE_SIZE // 2 - heuristic_surface.get_width() // 2,
+                                                 row * SQUARE_SIZE + HEADER_HEIGHT + SQUARE_SIZE // 2 - heuristic_surface.get_height() // 2))
+
+    def update_heuristics(self, heuristics):
+        """Update the board with heuristic values to display."""
+        self.heuristic_display = heuristics
 
     def is_valid_move(self, row, col, color):
         """Check if placing a piece at (row, col) is valid for the given color."""

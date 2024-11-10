@@ -1,5 +1,3 @@
-# ai_mode.py
-
 import math
 from board import copy_board
 from helpers import count_pieces
@@ -11,6 +9,7 @@ class AIMode:
         self.debug_mode = False
         self.best_move = None  # Stores the best move for the current state
         self.use_alpha_beta = False  # Toggle for alpha-beta pruning
+        self.heuristic_values = {}  # Dictionary to store heuristic values per move
 
     def set_debug_mode(self, debug, board, color):
         """Enable debug mode and calculate the first best move for the current player."""
@@ -31,10 +30,16 @@ class AIMode:
     def calculate_best_move(self, board, color):
         """Run MiniMax with or without alpha-beta pruning at the current depth for the current player."""
         self.states_examined = 0
+        self.heuristic_values.clear()  # Clear previous heuristic values
+
         if self.use_alpha_beta:
             _, self.best_move = self.minimax_alpha_beta(board, self.depth, -math.inf, math.inf, color == 'B')
         else:
             _, self.best_move = self.minimax(board, self.depth, color == 'B')
+        
+        # Pass heuristic values to the board for display
+        board.update_heuristics(self.heuristic_values)
+        
         print(f"Best move for {color} calculated with depth {self.depth}")
         print(f"States examined: {self.states_examined}")
 
@@ -51,22 +56,30 @@ class AIMode:
             for move in self.get_valid_moves(board, 'B'):
                 new_board = self.simulate_move(board, move, 'B')
                 eval_score, _ = self.minimax(new_board, depth - 1, False)
+                self.heuristic_values[move] = eval_score  # Store heuristic value for display
+                
                 if eval_score > max_eval:
                     max_eval = eval_score
                     best_move = move
+                
                 if self.debug_mode:
                     print(f"Evaluating move {move}, Heuristic = {eval_score}")
+                    
             return max_eval, best_move
         else:
             min_eval = math.inf
             for move in self.get_valid_moves(board, 'W'):
                 new_board = self.simulate_move(board, move, 'W')
                 eval_score, _ = self.minimax(new_board, depth - 1, True)
+                self.heuristic_values[move] = eval_score  # Store heuristic value for display
+                
                 if eval_score < min_eval:
                     min_eval = eval_score
                     best_move = move
+                
                 if self.debug_mode:
                     print(f"Evaluating move {move}, Heuristic = {eval_score}")
+                    
             return min_eval, best_move
 
     def minimax_alpha_beta(self, board, depth, alpha, beta, maximizing_player):
@@ -82,28 +95,38 @@ class AIMode:
             for move in self.get_valid_moves(board, 'B'):
                 new_board = self.simulate_move(board, move, 'B')
                 eval_score, _ = self.minimax_alpha_beta(new_board, depth - 1, alpha, beta, False)
+                self.heuristic_values[move] = eval_score  # Store heuristic value for display
+
                 if eval_score > max_eval:
                     max_eval = eval_score
                     best_move = move
                 alpha = max(alpha, eval_score)
+                
                 if beta <= alpha:  # Pruning occurs here
                     break
+                
                 if self.debug_mode:
                     print(f"Evaluating move {move}, Heuristic = {eval_score}, Alpha = {alpha}, Beta = {beta}")
+                    
             return max_eval, best_move
         else:
             min_eval = math.inf
             for move in self.get_valid_moves(board, 'W'):
                 new_board = self.simulate_move(board, move, 'W')
                 eval_score, _ = self.minimax_alpha_beta(new_board, depth - 1, alpha, beta, True)
+                self.heuristic_values[move] = eval_score  # Store heuristic value for display
+
                 if eval_score < min_eval:
                     min_eval = eval_score
                     best_move = move
                 beta = min(beta, eval_score)
+                
                 if beta <= alpha:  # Pruning occurs here
                     break
+                
                 if self.debug_mode:
                     print(f"Evaluating move {move}, Heuristic = {eval_score}, Alpha = {alpha}, Beta = {beta}")
+                    
             return min_eval, best_move
 
     def heuristic(self, board):
