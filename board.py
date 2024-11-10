@@ -1,4 +1,3 @@
-
 import pygame
 import time
 from settings import WIDTH, HEIGHT, HEADER_HEIGHT, SIDEBAR_WIDTH, SQUARE_SIZE, BLACK, WHITE, GREEN, GRAY, FONT_COLOR, FONT
@@ -37,13 +36,13 @@ class Board:
             piece_color = BLACK if current_color == 'B' else WHITE
             pygame.draw.circle(win, piece_color, (165, HEADER_HEIGHT // 2), 15)
 
-        # Count pieces
+
         black_count, white_count = count_pieces(self.grid)
         
-        # Draw the sidebar with piece counts and debug toggle
+
         self.sidebar.draw(win, black_count, white_count)
 
-        # Draw the board and pieces
+
         win.fill(GREEN, (0, HEADER_HEIGHT, WIDTH - SIDEBAR_WIDTH, HEIGHT - HEADER_HEIGHT))
         for row in range(8):
             for col in range(8):
@@ -108,9 +107,9 @@ class Board:
     def handle_click(self, pos, color):
         """Handle clicks on the board or in the sidebar."""
         if pos[0] >= WIDTH - SIDEBAR_WIDTH:
-
+            # Handle sidebar clicks
             if self.sidebar.handle_click(pos):
-                return False
+                return False  # Don't make a move if sidebar button was clicked
 
         if pos[1] < HEADER_HEIGHT or self.game_over:
             return False
@@ -131,3 +130,13 @@ class Board:
             else:
                 self.display_message("It's a tie!", 5)
             self.game_over = True
+
+def copy_board(original_board):
+    """Creates a deep copy of the given board."""
+    new_board = Board()  # Create a new Board instance
+    new_board.grid = [row[:] for row in original_board.grid]  # Deep copy of the grid
+    new_board.game_over = original_board.game_over
+    new_board.message = original_board.message
+    new_board.message_start_time = original_board.message_start_time
+    new_board.message_duration = original_board.message_duration
+    return new_board
