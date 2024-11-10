@@ -1,23 +1,32 @@
 import pygame
-from settings import WIDTH, HEADER_HEIGHT, SIDEBAR_WIDTH, FONT, FONT_COLOR, BLACK, WHITE, HEIGHT
+from settings import WIDTH, HEADER_HEIGHT, SIDEBAR_WIDTH, FONT, FONT_COLOR, BLACK, WHITE, HEIGHT, RED
 
 class Sidebar:
     def __init__(self):
         self.debug_mode = False
         self.use_alpha_beta = False  # Track alpha-beta toggle
-        self.debug_button_rect = pygame.Rect(WIDTH - SIDEBAR_WIDTH + 20, HEADER_HEIGHT + 20, 100, 30)
-        self.smart_move_button_rect = pygame.Rect(WIDTH - SIDEBAR_WIDTH + 20, HEADER_HEIGHT + 70, 100, 30)
-        self.update_depth_button_rect = pygame.Rect(WIDTH - SIDEBAR_WIDTH + 20, HEADER_HEIGHT + 120, 100, 30)
-        self.alpha_beta_button_rect = pygame.Rect(WIDTH - SIDEBAR_WIDTH + 20, HEADER_HEIGHT + 160, 100, 30)
         self.search_depth = 3
         self.depth_input_active = False  # Tracks if depth input mode is active
-        self.depth_text_input_rect = pygame.Rect(WIDTH - SIDEBAR_WIDTH + 20, HEADER_HEIGHT + 200, 100, 30)
+
+        # Define button sizes and positions with enhanced spacing and alignment
+        self.button_width = SIDEBAR_WIDTH - 40
+        self.button_height = 40
+        self.margin_top = 30
+        self.spacing = 15  # Increased spacing for better aesthetics
+
+        # Button positions
+        x_pos = WIDTH - SIDEBAR_WIDTH + 20
+        self.debug_button_rect = pygame.Rect(x_pos, HEADER_HEIGHT + self.margin_top, self.button_width, self.button_height)
+        self.smart_move_button_rect = pygame.Rect(x_pos, self.debug_button_rect.bottom + self.spacing, self.button_width, self.button_height)
+        self.update_depth_button_rect = pygame.Rect(x_pos, self.smart_move_button_rect.bottom + self.spacing, self.button_width, self.button_height)
+        self.alpha_beta_button_rect = pygame.Rect(x_pos, self.update_depth_button_rect.bottom + self.spacing, self.button_width, self.button_height)
+        self.depth_text_input_rect = pygame.Rect(x_pos, self.alpha_beta_button_rect.bottom + self.spacing + 10, self.button_width, self.button_height)
 
     def draw(self, win, black_count, white_count):
         """Draw the sidebar including debug, smart move, and depth controls."""
-        pygame.draw.rect(win, (128, 0, 128), (WIDTH - SIDEBAR_WIDTH, HEADER_HEIGHT, SIDEBAR_WIDTH, HEIGHT - HEADER_HEIGHT))
+        pygame.draw.rect(win, (50, 50, 50), (WIDTH - SIDEBAR_WIDTH, HEADER_HEIGHT, SIDEBAR_WIDTH, HEIGHT - HEADER_HEIGHT))  # Dark gray background
 
-        # Display black and white piece counts
+        # Display black and white piece counts with enhanced alignment
         pygame.draw.circle(win, BLACK, (WIDTH - SIDEBAR_WIDTH - 120, HEADER_HEIGHT // 2), 15)
         black_count_text = FONT.render(str(black_count), True, FONT_COLOR)
         win.blit(black_count_text, (WIDTH - SIDEBAR_WIDTH - 100, HEADER_HEIGHT // 2 - black_count_text.get_height() // 2))
@@ -27,36 +36,31 @@ class Sidebar:
         win.blit(white_count_text, (WIDTH - SIDEBAR_WIDTH - 30, HEADER_HEIGHT // 2 - white_count_text.get_height() // 2))
 
         # Draw debug mode toggle button
-        pygame.draw.rect(win, WHITE, self.debug_button_rect)
+        pygame.draw.rect(win, (200, 200, 200), self.debug_button_rect, border_radius=8)
         debug_text = FONT.render("Debug ON" if self.debug_mode else "Debug OFF", True, BLACK)
-        win.blit(debug_text, (self.debug_button_rect.x + 5, self.debug_button_rect.y + 5))
+        win.blit(debug_text, (self.debug_button_rect.x + 15, self.debug_button_rect.y + 8))
 
         # Draw smart move, alpha-beta toggle, and depth controls if debug mode is on
         if self.debug_mode:
-            pygame.draw.rect(win, WHITE, self.smart_move_button_rect)
+            pygame.draw.rect(win, (200, 200, 200), self.smart_move_button_rect, border_radius=8)
             smart_move_text = FONT.render("Smart Move", True, BLACK)
-            win.blit(smart_move_text, (self.smart_move_button_rect.x + 5, self.smart_move_button_rect.y + 5))
+            win.blit(smart_move_text, (self.smart_move_button_rect.x + 15, self.smart_move_button_rect.y + 8))
 
-            pygame.draw.rect(win, WHITE, self.update_depth_button_rect)
+            pygame.draw.rect(win, (200, 200, 200), self.update_depth_button_rect, border_radius=8)
             update_depth_text = FONT.render("Update Depth", True, BLACK)
-            win.blit(update_depth_text, (self.update_depth_button_rect.x + 5, self.update_depth_button_rect.y + 5))
+            win.blit(update_depth_text, (self.update_depth_button_rect.x + 15, self.update_depth_button_rect.y + 8))
 
-            # Alpha-beta toggle button
-            pygame.draw.rect(win, WHITE, self.alpha_beta_button_rect)
+            # Alpha-beta toggle button with rounded corners
+            pygame.draw.rect(win, (200, 200, 200), self.alpha_beta_button_rect, border_radius=8)
             alpha_beta_text = FONT.render("Alpha-Beta ON" if self.use_alpha_beta else "Alpha-Beta OFF", True, BLACK)
-            win.blit(alpha_beta_text, (self.alpha_beta_button_rect.x + 5, self.alpha_beta_button_rect.y + 5))
+            win.blit(alpha_beta_text, (self.alpha_beta_button_rect.x + 8, self.alpha_beta_button_rect.y + 8))
 
-            # Display current depth and allow input if active
-            depth_text = FONT.render(f"Depth: {self.search_depth}", True, FONT_COLOR)
-            win.blit(depth_text, (self.update_depth_button_rect.x, self.update_depth_button_rect.y + 50))
-
-            pygame.draw.rect(win, WHITE, self.depth_text_input_rect, 2)
-            if self.depth_input_active:
-                input_text = FONT.render(str(self.search_depth), True, BLACK)
-                win.blit(input_text, (self.depth_text_input_rect.x + 5, self.depth_text_input_rect.y + 5))
-            else:
-                static_text = FONT.render(str(self.search_depth), True, FONT_COLOR)
-                win.blit(static_text, (self.depth_text_input_rect.x + 5, self.depth_text_input_rect.y + 5))
+            # Display current depth with input box
+            depth_label_text = FONT.render("Depth:", True, WHITE)  # White label for contrast
+            win.blit(depth_label_text, (self.depth_text_input_rect.x, self.depth_text_input_rect.y - 30))
+            pygame.draw.rect(win, (255, 255, 255), self.depth_text_input_rect, border_radius=8, width=2)
+            depth_display_text = FONT.render(str(self.search_depth), True, RED if self.depth_input_active else WHITE)
+            win.blit(depth_display_text, (self.depth_text_input_rect.x + 10, self.depth_text_input_rect.y + 8))
 
     def toggle_debug(self):
         """Toggle debug mode on or off."""
