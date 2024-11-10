@@ -9,9 +9,26 @@ class AIMode:
         self.depth = depth
         self.states_examined = 0
         self.debug_mode = False
+        self.best_move = None  # Stores the best move for the current state
 
-    def set_debug_mode(self, debug):
+    def set_debug_mode(self, debug, board, color):
+        """Enable debug mode and calculate the first best move for the current player."""
         self.debug_mode = debug
+        if debug:
+            self.calculate_best_move(board, color)
+
+    def set_depth(self, depth, board, color):
+        """Set the depth and immediately recalculate the best move if in debug mode."""
+        self.depth = depth
+        if self.debug_mode:
+            self.calculate_best_move(board, color)
+
+    def calculate_best_move(self, board, color):
+        """Run MiniMax at the current depth for the current player without making a move."""
+        self.states_examined = 0
+        _, self.best_move = self.minimax(board, self.depth, color == 'B')
+        print(f"Best move for {color} calculated with depth {self.depth}")
+        print(f"States examined: {self.states_examined}")
 
     def minimax(self, board, depth, maximizing_player):
         """Recursive minimax with depth limit and heuristic scoring."""
@@ -65,8 +82,11 @@ class AIMode:
         return new_board
 
     def make_best_move(self, board, color):
-        """Calculate and make the best move for the given color using Minimax."""
-        self.states_examined = 0
-        _, best_move = self.minimax(board, self.depth, True if color == 'B' else False)
-        print(f"States examined: {self.states_examined}")
-        return best_move
+        """Execute the best move calculated in debug mode, then recalculate for the next player."""
+        if self.best_move:
+            board.make_move(self.best_move[0], self.best_move[1], color)
+            print(f"Executing best move for {color}: {self.best_move}")
+            # Recalculate the best move for the next player
+            self.calculate_best_move(board, 'W' if color == 'B' else 'B')
+            return True
+        return False

@@ -17,32 +17,40 @@ class Board:
         self.sidebar = Sidebar()
 
     def display_message(self, message, duration=2):
+        """Set a message to be displayed in the header for a specific duration."""
         self.message = message
         self.message_duration = duration
         self.message_start_time = time.time()
 
     def draw(self, win, current_color):
-        pygame.draw.rect(win, GRAY, (0, 0, WIDTH, HEADER_HEIGHT))   # HEADER 
-        
+        pygame.draw.rect(win, GRAY, (0, 0, WIDTH, HEADER_HEIGHT))  # HEADER
+
+        # Display the message if it's still within the duration
+        if self.message and (time.time() - self.message_start_time < self.message_duration):
+            text_surface = FONT.render(self.message, True, FONT_COLOR)
+            win.blit(text_surface, ((WIDTH - SIDEBAR_WIDTH) // 2 - text_surface.get_width() // 2, HEADER_HEIGHT // 2 - text_surface.get_height() // 2))
+        else:
+            # Clear the message if the duration has passed
+            self.message = ""
+
+        # Display current player's turn or game over
         if self.game_over:
             turn_text = "Game Over"
         else:
             turn_text = "Player 1's Turn" if current_color == 'B' else "Player 2's Turn"
-        
-        text_surface = FONT.render(turn_text, True, FONT_COLOR)
-        win.blit(text_surface, (10, HEADER_HEIGHT // 2 - text_surface.get_height() // 2))
 
+        turn_surface = FONT.render(turn_text, True, FONT_COLOR)
+        win.blit(turn_surface, (10, HEADER_HEIGHT // 2 - turn_surface.get_height() // 2))
+
+        # Current player piece color indicator
         if not self.game_over:
             piece_color = BLACK if current_color == 'B' else WHITE
             pygame.draw.circle(win, piece_color, (165, HEADER_HEIGHT // 2), 15)
 
-
         black_count, white_count = count_pieces(self.grid)
-        
-
         self.sidebar.draw(win, black_count, white_count)
 
-
+        # Draw board grid and pieces
         win.fill(GREEN, (0, HEADER_HEIGHT, WIDTH - SIDEBAR_WIDTH, HEIGHT - HEADER_HEIGHT))
         for row in range(8):
             for col in range(8):
@@ -107,9 +115,8 @@ class Board:
     def handle_click(self, pos, color):
         """Handle clicks on the board or in the sidebar."""
         if pos[0] >= WIDTH - SIDEBAR_WIDTH:
-            # Handle sidebar clicks
             if self.sidebar.handle_click(pos):
-                return False  # Don't make a move if sidebar button was clicked
+                return False  # Ignore if sidebar button was clicked
 
         if pos[1] < HEADER_HEIGHT or self.game_over:
             return False
