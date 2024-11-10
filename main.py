@@ -14,13 +14,13 @@ def main_menu():
         WIN.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, HEIGHT // 4))
         
         # Two Player button
-        button_text = FONT.render("Two Player", True, BLACK)
+        button_text = FONT.render("Player vs Player", True, BLACK)
         button_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 60, 200, 50)
         pygame.draw.rect(WIN, WHITE, button_rect)
         WIN.blit(button_text, (button_rect.x + 50, button_rect.y + 10))
         
         # Player vs Computer button
-        ai_button_text = FONT.render("Player vs Computer", True, BLACK)
+        ai_button_text = FONT.render("Player vs CPU", True, BLACK)
         ai_button_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 20, 200, 50)
         pygame.draw.rect(WIN, WHITE, ai_button_rect)
         WIN.blit(ai_button_text, (ai_button_rect.x + 10, ai_button_rect.y + 10))
