@@ -106,11 +106,11 @@ class Sidebar:
     def get_depth(self):
         return self.search_depth
 
-    def reset_scores(self):                                    # Resets scores to 0, save to json
+    def reset_scores(self):                                    
         self.scores = {'P1': 0, 'P2': 0}
         write_scores(self.scores)
 
-    def update_scores(self, winner):                         # updates scores for winner
+    def update_scores(self, winner):                         
         if winner == 'B':
             self.scores['P1'] += 1
         elif winner == 'W':

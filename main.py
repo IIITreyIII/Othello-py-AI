@@ -2,6 +2,7 @@
 # CSC 475 Assignment 3
 # 11-11-2024
 # This is the main menu of the game. It allows the player to choose between two game modes: Player vs Player and Player vs CPU.
+# All this really does is draw the main menu, its 2 buttons, handels the clicks, and redirects to the appropriate game mode.
 
 
 import pygame
