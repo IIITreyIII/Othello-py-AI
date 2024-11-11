@@ -1,4 +1,11 @@
-# twoPlayer.py
+# Trey Ball
+# CSC 475 Assignment 3
+# 11-11-2024
+# This is the two player game mode. It allows two players to play against each other, taking turns each move.
+# The game ends when there are no more valid moves for either player. The player with the most pieces on the board wins.
+# When things get hard, no need to fear, Debug mode is here! Turning on Debug mode will calculate the best move for the current player.
+# Debug provides a 'Smart Move' button play the best move for the current player.
+# At the end of each game, the player is given the option to start a new game or return to the main menu. 
 
 import pygame
 from board import Board
@@ -27,23 +34,20 @@ def run_game(win):
                         new_depth = board.sidebar.get_depth()
                         ai.set_depth(new_depth, board, current_color)
                     elif action == "smart_move" and board.sidebar.debug_mode:
-                        # Execute the best move for the current player and switch turns
                         if ai.make_best_move(board, current_color):
                             current_color = 'W' if current_color == 'B' else 'B'
                     elif action == "toggle_alpha_beta":
-                        # Sync AI's alpha-beta pruning setting with the sidebar toggle
                         ai.use_alpha_beta = board.sidebar.use_alpha_beta
                     elif action == "return_to_menu":
-                        return  # Exit the game loop and return to the main menu
+                        return
                     elif action == "new_game":
-                        return run_game(win)  # Restart the game
+                        return run_game(win)
                 elif not board.game_over and pos[0] < WIDTH - SIDEBAR_WIDTH and pos[1] > HEADER_HEIGHT:
                     board.handle_click(pos, current_color)
                     current_color = 'W' if current_color == 'B' else 'B'
 
             elif event.type == pygame.KEYDOWN:
-                # Pass keyboard events to handle depth input in the sidebar
-                board.sidebar.handle_key_event(event)
+                board.sidebar.handle_keypress(event)
 
         board.draw(win, current_color)
         pygame.display.flip()

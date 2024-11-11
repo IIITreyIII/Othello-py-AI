@@ -1,5 +1,5 @@
 # Trey Ball
-# Assignment 3
+# CSC 475 Assignment 3
 # 11-11-2024
 # Board.py is responsible for managing the game board and pieces. It contains a Board class 
 # which initializes the game board, places the initial pieces, and manages the game state. 
@@ -55,7 +55,7 @@ class Board:
         self.sidebar.draw(win, black_count, white_count, self.game_over) # draws (pygame draw) sidebar
 
 
-        win.fill(GREEN, (0, HEADER_HEIGHT, WIDTH - SIDEBAR_WIDTH, HEIGHT - HEADER_HEIGHT)) # Board background
+        win.fill(GREEN, (0, HEADER_HEIGHT, WIDTH - SIDEBAR_WIDTH, HEIGHT - HEADER_HEIGHT))
         for row in range(8):
             for col in range(8):
                 pygame.draw.rect(win, BLACK, (col * SQUARE_SIZE, row * SQUARE_SIZE + HEADER_HEIGHT, SQUARE_SIZE, SQUARE_SIZE), 1)

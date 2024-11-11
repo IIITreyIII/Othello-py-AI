@@ -1,3 +1,12 @@
+# Trey Ball
+# CSC 475 Assignment 3
+# 11-11-2024
+# Sidebar.py manages the sidebar and its UI on the right side of the gameboard. The Sidebar class
+# initializes the buttons, displays scores across multiple games, and handles the debug mode options.
+# Debug mode allows the player to enable smart moves (moves the computer makes for the player), update the search depth, and toggle alpha-beta pruning.
+# Note: This code is hard to organize due to pygames event handling and button position, honestly this made me appreciate CSS and HTML so much more.
+
+
 import pygame
 from settings import WIDTH, HEADER_HEIGHT, SIDEBAR_WIDTH, FONT, FONT_COLOR, BLACK, WHITE, HEIGHT, RED
 from score_manager import read_scores, write_scores
@@ -25,8 +34,8 @@ class Sidebar:
         self.return_button_rect = pygame.Rect(x_pos, HEIGHT - self.margin_top - self.button_height * 2 - self.spacing, self.button_width, self.button_height)       # Main menu button
         self.reset_scores_button_rect = pygame.Rect(x_pos, HEIGHT - self.margin_top - self.button_height, self.button_width, self.button_height)                    # Reset scores button
 
-    def draw(self, win, black_count, white_count, game_over):
-        pygame.draw.rect(win, (50, 50, 50), (WIDTH - SIDEBAR_WIDTH, HEADER_HEIGHT, SIDEBAR_WIDTH, HEIGHT - HEADER_HEIGHT))                                          # Dark gray background
+    def draw(self, win, black_count, white_count, game_over):                                                                            # Draws the sidebar and its elements
+        pygame.draw.rect(win, (50, 50, 50), (WIDTH - SIDEBAR_WIDTH, HEADER_HEIGHT, SIDEBAR_WIDTH, HEIGHT - HEADER_HEIGHT))               # equations are used to position elements in pygame (this took hours to position buttons :<)
         pygame.draw.circle(win, BLACK, (WIDTH - SIDEBAR_WIDTH - 120, HEADER_HEIGHT // 2), 15)
         black_count_text = FONT.render(str(black_count), True, FONT_COLOR)
         win.blit(black_count_text, (WIDTH - SIDEBAR_WIDTH - 100, HEADER_HEIGHT // 2 - black_count_text.get_height() // 2))
@@ -61,7 +70,7 @@ class Sidebar:
 
         
         scoreboard_title_y_pos = self.return_button_rect.y - 200
-        scoreboard_title_text = FONT.render("Total Games Won", True, WHITE)
+        scoreboard_title_text = FONT.render("Scoreboard", True, WHITE)
         win.blit(scoreboard_title_text, (self.return_button_rect.x + 10, scoreboard_title_y_pos))
         
         score_y_pos = self.return_button_rect.y - 160
@@ -134,7 +143,7 @@ class Sidebar:
             self.depth_input_active = False
             return None
 
-    def handle_key_event(self, event):
+    def handle_keypress(self, event):
         if self.depth_input_active and event.key in range(pygame.K_0, pygame.K_9 + 1):
             number = int(chr(event.key))
             self.search_depth = self.search_depth * 10 + number
