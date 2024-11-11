@@ -1,3 +1,11 @@
+# Trey Ball
+# Assignment 3
+# 11-11-2024
+# Board.py is responsible for managing the game board and pieces. It contains a Board class 
+# which initializes the game board, places the initial pieces, and manages the game state. 
+# The Board class also handles drawing the game board and pieces on the screen, checking for valid moves, making moves, flipping pieces, checking for a winner, and displaying messages.
+# This was made so core game funcationalities could be shared accross different game modes. Two Player / player v comp
+
 import pygame
 import time
 from settings import WIDTH, HEIGHT, HEADER_HEIGHT, SIDEBAR_WIDTH, SQUARE_SIZE, BLACK, WHITE, GREEN, GRAY, FONT_COLOR, FONT
@@ -18,23 +26,18 @@ class Board:
         self.heuristic_display = {}
 
     def display_message(self, message, duration=2):
-        """Set a message to be displayed in the header for a specific duration."""
         self.message = message
         self.message_duration = duration
         self.message_start_time = time.time()
 
     def draw(self, win, current_color):
         pygame.draw.rect(win, GRAY, (0, 0, WIDTH, HEADER_HEIGHT))  # HEADER
-
-        # Display the message if it's still within the duration
         if self.message and (time.time() - self.message_start_time < self.message_duration):
             text_surface = FONT.render(self.message, True, FONT_COLOR)
             win.blit(text_surface, ((WIDTH - SIDEBAR_WIDTH) // 2 - text_surface.get_width() // 2, HEADER_HEIGHT // 2 - text_surface.get_height() // 2))
         else:
-            # Clear the message if the duration has passed
             self.message = ""
 
-        # Display current player's turn or game over
         if self.game_over:
             turn_text = "Game Over"
         else:
@@ -43,59 +46,57 @@ class Board:
         turn_surface = FONT.render(turn_text, True, FONT_COLOR)
         win.blit(turn_surface, (10, HEADER_HEIGHT // 2 - turn_surface.get_height() // 2))
 
-        # Current player piece color indicator
+        
         if not self.game_over:
             piece_color = BLACK if current_color == 'B' else WHITE
             pygame.draw.circle(win, piece_color, (165, HEADER_HEIGHT // 2), 15)
 
         black_count, white_count = count_pieces(self.grid)
-        self.sidebar.draw(win, black_count, white_count, self.game_over)
+        self.sidebar.draw(win, black_count, white_count, self.game_over) # draws (pygame draw) sidebar
 
-        # Draw board grid and pieces
-        win.fill(GREEN, (0, HEADER_HEIGHT, WIDTH - SIDEBAR_WIDTH, HEIGHT - HEADER_HEIGHT))
+
+        win.fill(GREEN, (0, HEADER_HEIGHT, WIDTH - SIDEBAR_WIDTH, HEIGHT - HEADER_HEIGHT)) # Board background
         for row in range(8):
             for col in range(8):
                 pygame.draw.rect(win, BLACK, (col * SQUARE_SIZE, row * SQUARE_SIZE + HEADER_HEIGHT, SQUARE_SIZE, SQUARE_SIZE), 1)
                 
-                # Draw pieces
                 if self.grid[row][col] == 'B':
                     pygame.draw.circle(win, BLACK, (col * SQUARE_SIZE + SQUARE_SIZE // 2, row * SQUARE_SIZE + SQUARE_SIZE // 2 + HEADER_HEIGHT), SQUARE_SIZE // 2 - 5)
                 elif self.grid[row][col] == 'W':
                     pygame.draw.circle(win, WHITE, (col * SQUARE_SIZE + SQUARE_SIZE // 2, row * SQUARE_SIZE + SQUARE_SIZE // 2 + HEADER_HEIGHT), SQUARE_SIZE // 2 - 5)
                 
-                # Draw heuristic values in empty cells if debug mode is on
-                if self.sidebar.debug_mode and (row, col) in self.heuristic_display:
+
+                if self.sidebar.debug_mode and (row, col) in self.heuristic_display: # display the heuristic values in the grid squares
                     heuristic_value = self.heuristic_display[(row, col)]
                     heuristic_surface = FONT.render(str(heuristic_value), True, FONT_COLOR)
                     win.blit(heuristic_surface, (col * SQUARE_SIZE + SQUARE_SIZE // 2 - heuristic_surface.get_width() // 2,
                                                  row * SQUARE_SIZE + HEADER_HEIGHT + SQUARE_SIZE // 2 - heuristic_surface.get_height() // 2))
 
-        # Draw new game button if the game is over
-        if self.game_over:
+
+        if self.game_over:          # when game over - shows a new game button to restart the game
             pygame.draw.rect(win, (200, 200, 200), self.sidebar.new_game_button_rect, border_radius=8)
             new_game_text = FONT.render("New Game", True, BLACK)
             win.blit(new_game_text, (self.sidebar.new_game_button_rect.x + 15, self.sidebar.new_game_button_rect.y + 8))
 
-        # Draw return to main menu button
         pygame.draw.rect(win, (200, 200, 200), self.sidebar.return_button_rect, border_radius=8)
         return_text = FONT.render("Main Menu", True, BLACK)
         win.blit(return_text, (self.sidebar.return_button_rect.x + 15, self.sidebar.return_button_rect.y + 8))
 
+
+
     def update_heuristics(self, heuristics):
-        """Update the board with heuristic values to display."""
         self.heuristic_display = heuristics
 
+
     def is_valid_move(self, row, col, color):
-        """Check if placing a piece at (row, col) is valid for the given color."""
         if self.grid[row][col] is not None:
             return False
         for dx, dy in self.directions:
             if self.check_direction(row, col, dx, dy, color):
                 return True
         return False
-
-    def check_direction(self, row, col, dx, dy, color):
-        """Check in a specific direction if a move would capture opponent's pieces."""
+    
+    def check_direction(self, row, col, dx, dy, color):     # check if the direction is a valid move
         opponent = 'W' if color == 'B' else 'B'
         r, c = row + dx, col + dy
         found_opponent = False
@@ -109,7 +110,7 @@ class Board:
 
     def make_move(self, row, col, color):
         if self.game_over or not self.is_valid_move(row, col, color):
-            self.display_message("Invalid Move! Skipping Turn!", 2)
+            self.display_message("Invalid Move... Turn Skipped!", 2)
             return False
 
         self.grid[row][col] = color
@@ -120,8 +121,7 @@ class Board:
         self.check_winner()
         return True
 
-    def flip_pieces(self, row, col, dx, dy, color):
-        """Flip opponent's pieces in a specific direction after a valid move."""
+    def flip_pieces(self, row, col, dx, dy, color):         # flip the pieces in the direction
         opponent = 'W' if color == 'B' else 'B'
         r, c = row + dx, col + dy
         while 0 <= r < 8 and 0 <= c < 8 and self.grid[r][c] == opponent:
@@ -130,18 +130,16 @@ class Board:
             c += dy
 
     def has_valid_moves(self, color):
-        """Check if there are any valid moves left for the given color."""
         for row in range(8):
             for col in range(8):
                 if self.is_valid_move(row, col, color):
                     return True
         return False
 
-    def handle_click(self, pos, color):
-        """Handle clicks on the board or in the sidebar."""
+    def handle_click(self, pos, color):                 # stops sidebar clicks from messing with game board
         if pos[0] >= WIDTH - SIDEBAR_WIDTH:
             if self.sidebar.handle_click(pos):
-                return False  # Ignore if sidebar button was clicked
+                return False
 
         if pos[1] < HEADER_HEIGHT or self.game_over:
             return False
@@ -151,8 +149,7 @@ class Board:
             return True
         return False
 
-    def check_winner(self):
-        """Determine if the game is over and declare the winner."""
+    def check_winner(self):                            # check if players have valid moves left, not == game over
         if not self.has_valid_moves('B') and not self.has_valid_moves('W'):
             black_count, white_count = count_pieces(self.grid)
             if black_count > white_count:
@@ -165,10 +162,9 @@ class Board:
                 self.display_message("It's a tie!", 5)
             self.game_over = True
 
-def copy_board(original_board):
-    """Creates a deep copy of the given board."""
-    new_board = Board()  # Create a new Board instance
-    new_board.grid = [row[:] for row in original_board.grid]  # Deep copy of the grid
+def copy_board(original_board):                        # copy the board to simulate possible moves
+    new_board = Board()
+    new_board.grid = [row[:] for row in original_board.grid]
     new_board.game_over = original_board.game_over
     new_board.message = original_board.message
     new_board.message_start_time = original_board.message_start_time
