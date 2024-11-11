@@ -1,13 +1,13 @@
 # Trey Ball
 # CSC 475 Assignment 3
 # 11-11-2024
-# This is the two player game mode. It allows two players to play against each other, taking turns each move.
-# The game ends when there are no more valid moves for either player. The player with the most pieces on the board wins.
-# When things get hard, no need to fear, Debug mode is here! Turning on Debug mode will calculate the best move for the current player.
-# Debug provides a 'Smart Move' button play the best move for the current player.
-# At the end of each game, the player is given the option to start a new game or return to the main menu. 
+# PvCPU.py is provides a main menu option for the player to play against a computer opponent.
+# The difficulty of the CPU can be adjusted DEBUG menu by changing the depth, but its default is 5 (moderate).
+# IT IS HIGHLY RECOMMENDED TO TURN ON ALPHA-BETA PRUNING IN THE DEBUG MENU, game performence slows very quickly every move without this.
+# An intential timed delay was added to the CPU's move to make the game more enjoyable to play.
 
 import pygame
+import time
 from board import Board
 from settings import HEADER_HEIGHT, WIDTH, SIDEBAR_WIDTH
 import sys
@@ -15,10 +15,12 @@ from game_modes.AI import AIMode
 
 def run_game(win):
     board = Board()
-    ai = AIMode(depth=3)
+    ai = AIMode(depth=5)
     current_color = 'B'
-
     clock = pygame.time.Clock()
+    ai_delay = 1.0
+    last_move_time = None
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -42,12 +44,28 @@ def run_game(win):
                         return
                     elif action == "new_game":
                         return run_game(win)
+                    
                 elif not board.game_over and pos[0] < WIDTH - SIDEBAR_WIDTH and pos[1] > HEADER_HEIGHT:
-                    board.handle_click(pos, current_color)
-                    current_color = 'W' if current_color == 'B' else 'B'
+                    move_successful = board.handle_click(pos, current_color)
+                    if move_successful:
+                        current_color = 'W'
+                        last_move_time = time.time()
+                        board.display_message("Computer's Turn", duration=ai_delay)
+                    else:
+                        current_color = 'W'
+                        last_move_time = time.time()
+                        board.display_message("DOH!...Invalid Move. Computer's Turn", duration=ai_delay)
 
             elif event.type == pygame.KEYDOWN:
                 board.sidebar.handle_keypress(event)
+        
+        
+        if current_color == 'W' and not board.game_over:
+            if last_move_time and (time.time() - last_move_time >= ai_delay):
+                ai.calculate_best_move(board, 'W')
+                ai.make_best_move(board, 'W')
+                current_color = 'B'
+
 
         board.draw(win, current_color)
         pygame.display.flip()
